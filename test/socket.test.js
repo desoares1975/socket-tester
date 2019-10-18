@@ -31,7 +31,7 @@ describe('SOCKET', () => {
       sockets[iNow].on('newAuction', data =>  {
         response(`${new Date()} sockets[${iNow}] newAuction`, data)
         // setTimeout(() => {
-        //   sockets[iNow].emit('auctionQaulify', {
+        //   sockets[iNow].emit('auctionQualify', {
         //     auction: data,
         //     latitude: -23.5542146,
         //     longitude: -46.7429688
@@ -45,7 +45,7 @@ describe('SOCKET', () => {
           crate
         } = data
 
-        sockets[iNow].emit('qualify', {
+        sockets[iNow].emit('apply', {
           auction,
           crate
         })
