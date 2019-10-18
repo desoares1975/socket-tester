@@ -28,7 +28,40 @@ describe('SOCKET', () => {
       }))
       const iNow = i
 
-      sockets[i].on('newAuction', data =>  response(`${new Date()} sockets[${iNow}] newAuction`, data))
+      sockets[iNow].on('newAuction', data =>  {
+        response(`${new Date()} sockets[${iNow}] newAuction`, data)
+        // setTimeout(() => {
+        //   sockets[iNow].emit('auctionQaulify', {
+        //     auction: data,
+        //     latitude: -23.5542146,
+        //     longitude: -46.7429688
+        //   })
+        // }, 1500)
+      })
+      .on('auctioningCrate', data => {
+        response(data)
+        const {
+          auction,
+          crate
+        } = data
+
+        sockets[iNow].emit('qualify', {
+          auction,
+          crate
+        })
+      })
+        .on('auctionAccept', data => {
+          response('Auction Accepted')
+          response(data)
+        })
+        .on('applicationSuccess', data => {
+          response('Success')
+          response(data)
+        })
+        .on('applicationFailed', data => {
+          response('Failed!!!!')
+          response(data)
+        })
         .on('connect', () => {
           sockets[iNow].emit('iAmAvailable')
           log('CONNECTED: ' + iNow, sockets[iNow].id)
