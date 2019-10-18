@@ -25,8 +25,9 @@ io.on('connect', socket => {
     console.log('localSocketId', socket.id)
 
     socket.on('locate', data => {
-        socket.range = data.distance
-        console.log(socket)
+console.log('LOCALTE')        
+        socket.range = +data.distance
+        console.log(socket.id, socket.range)
     })
     socket.on('disconnect', a => {
         console.log(socket.id, a, 'Leaving room...')
@@ -42,17 +43,20 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => res.status(200).send('OK'))
 app.post('/new', (req, res) => {
     let turn = 0
+    let data
 
     const romaneio = new cron.CronJob(`* ${INC_INTERVAL} * * *`, () => {
-        const data = {
-            ... req.body,
+        data = {
+            ...req.body,
             fee: req.body.runSize * (BASE_KM_FEE + BASE_KM_FEE_INC * turn),
         }
-
+console.log(data, '????????????????????????????????????????????????????????????')
         io.clients((e, clients) => {
             clients.filter(c => c.range && c.range <= (BASE_RANGE + (BASE_RANGE_INC * turn)))
                 .forEach(c => io.to(c.id).emit('delivery', data))
         })
     })
+    romaneio.start();
+    res.status(200).json(data);
 
 })
