@@ -9,7 +9,7 @@ const response = debug('test:RESPONSE')
 const config = require('courier-config').loadConfig('notification', 'qa')
 const users = require('./data/users')
 const encode = (payload) => {
-  return jwt.sign(payload, config.jwt.secret, { expiresIn: '200y' })
+  return jwt.sign(payload, config.jwt.secret/*, { expiresIn: '200y' }*/)
 }
 
 describe('SOCKET', () => {
@@ -18,9 +18,9 @@ describe('SOCKET', () => {
   before(done => {
     let i
 
-    for (i = 0; i < 1; i++) {
-      const token = encode({ data: { userId: users[i+10]._id } })
-      sockets.push(io.connect('wss://notification.courier.k8sqa.io', {
+    for (i = 0; i < 12; i++) {
+      const token = encode({ data: { userId: users[i+36]._id } })
+      sockets.push(io.connect(/*'wss://wss.imediataexpress.com.br'*/'wss://notification.courier.k8sqa.io', {
         transports: ['websocket'],
         query: { token },
         rejectUnauthorized: false,
@@ -38,8 +38,18 @@ describe('SOCKET', () => {
         //   })
         // }, 1500)
       })
+      .on('crateOffer', data =>  {
+        response(`${new Date()} sockets[${iNow}] crateOffer`, data)
+        setTimeout(() => {
+          sockets[iNow].emit('offerReceived', {
+            auction: data,
+            latitude: -23.5542146,
+            longitude: -46.7429688
+          })
+        }, 1500)
+      })
       .on('auctioningCrate', data => {
-        response(data)
+        response('auctioningCrate', data)
         const {
           auction,
           crate
@@ -64,7 +74,7 @@ describe('SOCKET', () => {
         })
         .on('connect', () => {
           sockets[iNow].emit('iAmAvailable')
-          log('CONNECTED: ' + iNow, sockets[iNow].id)
+          log('CONNECTED: ' + iNow, sockets[iNow].id, 'id:', users[iNow+55]._id, 'name:', `${users[iNow+55].givenName} ${users[iNow+55].familyName}`)
         })
         .on('reconnect', () => {
           warning('RECONNECTED')
@@ -75,6 +85,13 @@ describe('SOCKET', () => {
         .on('disconnect', () => {
           sockets[iNow].emit('iAmNotAvailable')
           warning('DISCONNECTED', new Date())
+        })
+        .on('runCanceled', data => {
+          warning('RUN CANCELED', data)
+          sockets[iNow].emit('iAmAvailable')
+        })
+        .on('auctionCanceled', data => {
+          warning('AUCTION CANCELED!', data)
         })
         .on('connect_error', e => error('CONNECT_ERROR', e))
     }
