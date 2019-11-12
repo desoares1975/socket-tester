@@ -17,9 +17,10 @@ describe('SOCKET', () => {
 
   before(done => {
     let i
+    const x = 25
 
-    for (i = 0; i < 12; i++) {
-      const token = encode({ data: { userId: users[i+36]._id } })
+    for (i = 0; i < 4; i++) {
+      const token = encode({ data: { userId: users[i + x]._id } })
       sockets.push(io.connect(/*'wss://wss.imediataexpress.com.br'*/'wss://notification.courier.k8sqa.io', {
         transports: ['websocket'],
         query: { token },
@@ -60,40 +61,40 @@ describe('SOCKET', () => {
           crate
         })
       })
-        .on('auctionAccept', data => {
-          response('Auction Accepted')
-          response(data)
-        })
-        .on('applicationSuccess', data => {
-          response('Success')
-          response(data)
-        })
-        .on('applicationFailed', data => {
-          response('Failed!!!!')
-          response(data)
-        })
-        .on('connect', () => {
-          sockets[iNow].emit('iAmAvailable')
-          log('CONNECTED: ' + iNow, sockets[iNow].id, 'id:', users[iNow+55]._id, 'name:', `${users[iNow+55].givenName} ${users[iNow+55].familyName}`)
-        })
-        .on('reconnect', () => {
-          warning('RECONNECTED')
-          sockets[iNow].emit('iAmAvailable')
-        })
-        .on('myTest', data => warning(`socket[${iNow}]`, data))
-        .on('error', e => error('ERROR:', e.message))
-        .on('disconnect', () => {
-          sockets[iNow].emit('iAmNotAvailable')
-          warning('DISCONNECTED', new Date())
-        })
-        .on('runCanceled', data => {
-          warning('RUN CANCELED', data)
-          sockets[iNow].emit('iAmAvailable')
-        })
-        .on('auctionCanceled', data => {
-          warning('AUCTION CANCELED!', data)
-        })
-        .on('connect_error', e => error('CONNECT_ERROR', e))
+      .on('applicationAccepted', data => {
+        response('Auction Accepted')
+        response(data)
+      })
+      .on('applicationSuccess', data => {
+        response('Success')
+        response(data)
+      })
+      .on('applicationFailed', data => {
+        response('Failed!!!!')
+        response(data)
+      })
+      .on('connect', () => {
+        sockets[iNow].emit('iAmAvailable')
+        log('CONNECTED: ' + iNow, sockets[iNow].id, 'id:', users[iNow + x]._id, 'name:', `${users[iNow + x].givenName} ${users[iNow + x].familyName}`)
+      })
+      .on('reconnect', () => {
+        warning('RECONNECTED')
+        sockets[iNow].emit('iAmAvailable')
+      })
+      .on('myTest', data => warning(`socket[${iNow}]`, data))
+      .on('error', e => error('ERROR:', e.message))
+      .on('disconnect', () => {
+        sockets[iNow].emit('iAmNotAvailable')
+        warning('DISCONNECTED', new Date())
+      })
+      .on('runCanceled', data => {
+        warning('RUN CANCELED', data)
+        sockets[iNow].emit('iAmAvailable')
+      })
+      .on('auctionCanceled', data => {
+        warning('AUCTION CANCELED!', data)
+      })
+      .on('connect_error', e => error('CONNECT_ERROR', e))
     }
 
     sockets[sockets.length -1].on('connect', () => {
