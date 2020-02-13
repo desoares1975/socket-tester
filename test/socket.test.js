@@ -20,8 +20,8 @@ describe('SOCKET', () => {
     const x = 25
 
     for (i = 0; i < 4; i++) {
-      const token = encode({ data: { userId: users[i + x]._id } })
-      sockets.push(io.connect(/*'wss://wss.imediataexpress.com.br'*/'wss://notification.courier.k8sqa.io', {
+      const token = encode({ data: { userId: users[i + x]._id, role: 'DELIVERYMAN' } })
+      sockets.push(io.connect(`wss://${config.api.notification}`, {
         transports: ['websocket'],
         query: { token },
         rejectUnauthorized: false,
@@ -31,13 +31,13 @@ describe('SOCKET', () => {
 
       sockets[iNow].on('newAuction', data =>  {
         response(`${new Date()} sockets[${iNow}] newAuction`, data)
-        // setTimeout(() => {
-        //   sockets[iNow].emit('auctionQualify', {
-        //     auction: data,
-        //     latitude: -23.5542146,
-        //     longitude: -46.7429688
-        //   })
-        // }, 1500)
+        setTimeout(() => {
+          sockets[iNow].emit('auctionQualify', {
+            auction: data,
+            latitude: -23.5542146,
+            longitude: -46.7429688
+          })
+        }, 1500)
       })
       .on('crateOffer', data =>  {
         response(`${new Date()} sockets[${iNow}] crateOffer`, data)
@@ -48,6 +48,9 @@ describe('SOCKET', () => {
             longitude: -46.7429688
           })
         }, 1500)
+      })
+      .on('outOfRange', data => {
+        error('OUT OF RANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', data)
       })
       .on('auctioningCrate', data => {
         response('auctioningCrate', data)
